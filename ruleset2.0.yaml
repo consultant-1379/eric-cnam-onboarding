@@ -1,0 +1,198 @@
+modelVersion: 2.0
+
+docker-images:
+  - acceptance-test-image: armdocker.rnd.ericsson.se/proj-ra-cnam/acceptance-test-image:latest
+  - adp-helm-install: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/bob-py3kubehelmbuilder:latest
+  - adp-int-helm-chart-auto: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/adp-int-helm-chart-auto:latest
+  - adp-release-auto: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/bob-adp-release-auto:latest
+  - anchore-inline-image: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/anchore-inline-scan:latest
+  - doc-builder: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/bob-docbuilder:latest
+  - helm-dr-check: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/adp-helm-dr-checker:latest
+  - javamvn: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/bob-java11mvnbuilder:latest
+
+properties:
+  - image-registry-name: armdocker.rnd.ericsson.se
+  - image-path: proj-ra-cnam
+  - image-path-pra: proj-cnam-pra
+  - docker-image-name: eric-cnam-onboarding
+  - gerrit-url: gerrit.ericsson.se/a/OSS/com.ericsson.orchestration.mgmt/eric-cnam-onboarding
+  - int-gerrit-url: gerrit.ericsson.se/a/OSS/com.ericsson.orchestration.mgmt/cn-app-mgmt-integration-chart
+  - generic-artifactory: https://arm.sero.gic.ericsson.se/artifactory/proj-eric-lcm-helm-executor-artifacts-generic-local
+  - sonarqube-url: https://sonarqube.lmera.ericsson.se
+  - cbo-gerrit-url: gerrit.ericsson.se/linux/adp
+  - cbo-release-repo: https://arm.epk.ericsson.se/artifactory/simple/docker-v2-global-local/proj-ldc/common_base_os_release/sles
+  - image-prod-number: "CXU0000000"
+  - image-prod-name: "Cloud Native - Onboarding"
+  - oras-cli-version: "0.15.1"
+  - helm_version: "v3.10.3"
+
+var:
+  - cbo-version
+  - cbos-semver
+  - ccr-enable
+  - ccr-hostname
+  - chart-version
+  - commithash
+  - current-helm-repo
+  - deploy_values
+  - deployment-name
+  - docker-image-tag
+  - dockerimage_artifactory
+  - executor-ingress
+  - image-path-replace
+  - int-chart-version
+  - kubenodeip
+  - port
+  - precode_review_rule
+  - skip-helmdrck-rules
+  - user-in-docker
+  - version
+  - version-prefix: VERSION_PREFIX
+
+env:
+  - API_TOKEN
+  - BASE_HELMFILE
+  - BUILD_NUMBER
+  - DROP
+  - ENV_PROFILE_PRE
+  - GERRIT_PASSWORD
+  - GERRIT_REFSPEC
+  - GERRIT_USERNAME
+  - HELM_TIMEOUT (default=900s)
+  - HELM_USER
+  - MUNIN_TOKEN
+  - INT_CHART_NAME
+  - INT_CHART_REPO
+  - INT_CHART_VERSION
+  - JENKINS_URL
+  - JOB_NAME
+  - MARKETPLACE_TOKEN
+  - PIPELINE_VALUES_FILE_PATH
+  - PWD
+  - RELEASE_VERSION
+  - NAMESPACE
+  - KUBERNETES_FQDN
+  - FOSS_TOKEN
+  - FOSS_ENDPOINT
+  - FOSS_TEAM
+  - FOSS_PROJECT
+  - SONAR_TOKEN
+
+rules:
+
+  preparation:
+    - task: delete-folders
+      cmd:
+        - rm -rf .bob \
+                 artifact.properties \
+                 logs_cnam* \
+                 target \
+                 test-output \
+                 src
+    - task: create-folders
+      cmd:
+        - mkdir -p ${env.PWD}/.bob ${env.PWD}/src
+  precode_init:
+    - task: gen-version
+      cmd:
+        - echo ${var.version-prefix}-$(git log -1 --pretty=format:'%h') > .bob/var.version
+        - if [ $DROP = true ]; then echo ${var.version-prefix}-$BUILD_NUMBER > .bob/var.version; fi
+    - task: gen-hash
+      cmd:
+        - git rev-parse --short HEAD > .bob/var.commithash
+    - task: cbos-semver
+      cmd:
+        - git ls-remote --tags --sort='v:refname' https://${env.GERRIT_USERNAME}:${env.GERRIT_PASSWORD}@${cbo-gerrit-url} refs/tags/*+* | tail -n1 | sed 's/.*\///' | tr + - > .bob/var.cbo-version
+        - wget --quiet --spider ${cbo-release-repo}/${var.cbo-version}
+        - echo ${var.cbo-version} | cut -d '-' -f 1 > .bob/var.cbos-semver
+    - task: generate-user-to-be-used-in-docker
+      cmd:
+        - 'h=$(sha256sum <<< "${docker-image-name}" | cut -f1 -d " " ); bc -q <<< "scale=0;obase=10;ibase=16;(${h^^}%30D41)+186A0" > .bob/var.user-in-docker'
+    - task: set-docker-image-path
+      cmd:
+        - echo ${image-path} > ${env.PWD}/.bob/var.image-path-replace
+    - task: gen-dockerinage-tag
+      cmd:
+        - echo ${var.version} > ${env.PWD}/.bob/var.docker-image-tag
+    - task: git-properties
+      cmd:
+        - echo "GIT_TAG=$(git log -1 --pretty=format:'%h')" >> artifact.properties
+        - echo "GIT_COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')" >> artifact.properties
+        - echo "GIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')" >> artifact.properties
+        - echo "GIT_COMMIT_SUMMARY=$(git log -1 --pretty=format:'%s')" >> artifact.properties
+
+  build:
+    - task: build-java
+      docker-image: javamvn
+      docker-flags:
+        - --network host
+        - -v /var/run/docker.sock:/var/run/docker.sock
+        - --env HOME="${env.PWD}"
+      cmd: mvn -s mvn-settings.xml clean install
+
+  publish-jar-cred:
+    - task: inject-gitcred-mvn
+      cmd:
+        - sed -i 's#username>.*</username#username>${env.GERRIT_USERNAME}</username#g' mvn-settings.xml
+        - sed -i 's#password>.*</password#password>${env.GERRIT_PASSWORD}</password#g' mvn-settings.xml
+
+  publish-jar:
+    - task: publish-jar
+      docker-image: javamvn
+      docker-flags:
+        - --network host
+        - -v /var/run/docker.sock:/var/run/docker.sock
+      cmd: mvn -s mvn-settings.xml clean deploy -DskipTests -ntp
+
+  sonar:
+    - task: sonar
+      docker-image: javamvn
+      docker-flags:
+        - --network host
+      cmd: mvn -s mvn-settings.xml sonar:sonar
+    - task: check-sonar-quality-gate-status
+      docker-image: adp-release-auto
+      cmd: |
+         python3 -c 'import sys, json, os; status = json.loads(os.popen("curl -s -u ${env.SONAR_TOKEN}: ${sonarqube-url}/api/qualitygates/project_status?projectKey=${docker-image-name}").read())["projectStatus"]["status"]; print(f"Sonar quality gate status: {status}");  sys.exit(0) if status == "OK" else sys.exit(1)'
+
+  build-docker:
+    - task: build-image
+      cmd: docker build --file ${env.PWD}/Docker/eric-cnam-onboarding/Dockerfile .
+                        --tag ${image-registry-name}/${var.image-path-replace}/${docker-image-name}:${var.docker-image-tag}
+                        --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+                        --build-arg CBO_VERSION=${var.cbo-version}
+                        --build-arg COMMIT=${var.commithash}
+                        --build-arg CONTAINER_ID=${var.user-in-docker}
+                        --build-arg HELM_VERSION=${helm_version}
+                        --build-arg ORAS_CLI_VERSION=${oras-cli-version}
+                        --build-arg PRODUCT_NAME="${image-prod-name}"
+                        --build-arg PRODUCT_NUMBER="${image-prod-number}"
+                        --build-arg PRODUCT_VERSION="${var.version}"
+                        --build-arg REPOSITORY=https://${gerrit-url}
+    - task: save-docker-image-url
+      cmd:
+        - echo ${image-registry-name}/${var.image-path-replace}/${docker-image-name}:${var.docker-image-tag} > .bob/var.dockerimage_artifactory
+
+  publish-docker-image:
+    - rule: build-docker
+    - task: publish-image
+      cmd:
+        - export DOCKER_CONFIG=${env.PWD}/.bob/.docker
+        - docker login --username=cnamfid --password=1HelmfileExecutor4ADPLCM! ${image-registry-name}
+        - docker push ${image-registry-name}/${var.image-path-replace}/${docker-image-name}:${var.docker-image-tag}
+    - task: docker-images-cleanup
+      cmd:
+        - docker rmi -f ${image-registry-name}/${var.image-path-replace}/${docker-image-name}:${var.docker-image-tag}
+
+  drop-actions:
+    - task: add-tag-to-master
+      cmd:
+        - git config push.default simple
+        - git config user.name '${env.GERRIT_USERNAME}'
+        - git config user.email "Jenkins-fem4s11@ericsson.com"
+        - echo ${var.dockerimage_artifactory} > DROP_VERSION
+        - git add DROP_VERSION
+        - git commit -m "DROP_VERSION updated"
+        - git tag -a ${var.version} -m "Drop ver. ${var.version}"
+        - git push https://${env.GERRIT_USERNAME}:${env.GERRIT_PASSWORD}@${gerrit-url} HEAD:master
+        - git push https://${env.GERRIT_USERNAME}:${env.GERRIT_PASSWORD}@${gerrit-url} HEAD:master ${var.version}

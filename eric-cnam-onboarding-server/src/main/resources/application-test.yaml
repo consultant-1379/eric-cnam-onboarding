@@ -1,0 +1,35 @@
+#
+# COPYRIGHT Ericsson 2023
+#
+#
+#
+# The copyright to the computer program(s) herein is the property of
+#
+# Ericsson Inc. The programs may be used and/or copied only with written
+#
+# permission from Ericsson Inc. or in accordance with the terms and
+#
+# conditions stipulated in the agreement/contract under which the
+#
+# program(s) have been supplied.
+#
+
+# since we are using the ORAS command, we must use the URL value without the http(s) prefix: "docker.ccd-c16a027.athtem.eei.ericsson.se"
+registry:
+  url: localhost:8087
+  username: testuser
+  password: testpass
+
+# the REGISTRY value must be without the http(s) prefix: "docker.ccd-c16a027.athtem.eei.ericsson.se"
+docker:
+  registry: localhost:8087
+  username: testuser
+  password: testpass
+
+gitrepo:
+  url: http://localhost:8086/local-git-repo.git
+  username: testuser
+  password: testpass
+
+directory:
+  root: ${java.io.tmpdir}/onboarding

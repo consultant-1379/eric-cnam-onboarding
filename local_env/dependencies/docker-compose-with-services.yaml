@@ -1,0 +1,57 @@
+version: "3"
+services:
+  gitrepo:
+    build:
+      context: git-repo
+    environment:
+      AUTH: "true"
+      PORT: "8080"
+      USER: "testuser"
+      PASS: "testpass"
+    container_name: gitrepo
+  registry:
+    image: armdockerhub.rnd.ericsson.se/registry:2
+    environment:
+      REGISTRY_HTTP_ADDR: "0.0.0.0:443"
+      REGISTRY_HTTP_TLS_CERTIFICATE: "/certs/server.pem"
+      REGISTRY_HTTP_TLS_KEY: "/certs/server.key"
+      REGISTRY_AUTH: "htpasswd"
+      REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
+      REGISTRY_AUTH_HTPASSWD_PATH: "/certs/htpasswd"
+    container_name: registry
+    volumes:
+      - ./registry:/certs:ro
+  executor:
+    image: armdocker.rnd.ericsson.se/proj-ra-cnam/eric-lcm-helm-executor:0.7.10-2f561504
+    ports:
+      - 8080:8888
+    environment:
+      GITREPO_URL: http://gitrepo:8080/local-git-repo.git
+      GITREPO_USER: "testuser"
+      GITREPO_PASS: "testpass"
+      OCI_REGISTRY_URL: registry
+      OCI_REGISTRY_USER: "testuser"
+      OCI_REGISTRY_PASS: "testpass"
+      SPRING_PROFILES_ACTIVE: lightweight
+      LOGGING_LEVEL_ROOT: INFO
+    links:
+      - gitrepo
+      - registry
+  onboarding:
+    image: armdocker.rnd.ericsson.se/proj-ra-cnam/eric-cnam-onboarding:0.1.0-8630319
+    ports:
+      - 8081:8080
+    environment:
+      GITREPO_URL: http://gitrepo:8080/local-git-repo.git
+      GITREPO_USER: "testuser"
+      GITREPO_PASS: "testpass"
+      OCI_REGISTRY_URL: registry
+      OCI_REGISTRY_USER: "testuser"
+      OCI_REGISTRY_PASS: "testpass"
+      DOCKER_REGISTRY_URL: registry
+      DOCKER_REGISTRY_USER: "testuser"
+      DOCKER_REGISTRY_PASS: "testpass"
+      LOGGING_LEVEL_ROOT: INFO
+    links:
+      - gitrepo
+      - registry

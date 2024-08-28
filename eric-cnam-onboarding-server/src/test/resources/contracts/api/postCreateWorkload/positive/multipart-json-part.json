@@ -1,0 +1,10 @@
+{
+  "workloadInstanceId": "testId",
+  "workloadInstanceName": "testName",
+  "namespace": "testNamespace",
+  "cluster": "testCluster",
+  "helmSourceUrl": "some_Url",
+  "additionalParameters": {
+    "testKey": "testValue"
+  }
+}

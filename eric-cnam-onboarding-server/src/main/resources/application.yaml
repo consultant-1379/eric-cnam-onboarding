@@ -1,0 +1,56 @@
+#
+# COPYRIGHT Ericsson 2023
+#
+#
+#
+# The copyright to the computer program(s) herein is the property of
+#
+# Ericsson Inc. The programs may be used and/or copied only with written
+#
+# permission from Ericsson Inc. or in accordance with the terms and
+#
+# conditions stipulated in the agreement/contract under which the
+#
+# program(s) have been supplied.
+#
+
+# To start app locally you need to change profiles.active to "test"
+
+spring:
+  profiles.active: dev
+  main.banner-mode: "off"
+  application:
+    name: eric-cnam-onboarding
+
+# Request and file sizes will be set in values.yaml in future according to the size of user`s CSARs
+  servlet.multipart:
+    max-request-size: 10GB
+    max-file-size: 10GB
+
+logging:
+  config: classpath:logback-json.xml
+  level:
+    root: INFO
+
+logPath: ${LOG_PATH:-logs}
+
+directory:
+  root: ${java.io.tmpdir}
+
+registry:
+  url: ${OCI_REGISTRY_URL}
+  username: ${OCI_REGISTRY_USER}
+  password: ${OCI_REGISTRY_PASS}
+
+docker:
+  registry: ${DOCKER_REGISTRY_URL}
+  username: ${DOCKER_REGISTRY_USER}
+  password: ${DOCKER_REGISTRY_PASS}
+
+gitrepo:
+  url: ${GITREPO_URL}
+  username: ${GITREPO_USER}
+  password: ${GITREPO_PASS}
+
+operation:
+  timeout: 5

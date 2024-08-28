@@ -1,0 +1,7 @@
+{
+ "workloadInstanceName": "successfulpost",
+  "helmSourceUrl": "some_Url",
+  "additionalParameters": {
+    "test": "value"
+  }
+}

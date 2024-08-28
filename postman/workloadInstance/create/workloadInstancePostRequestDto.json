@@ -1,0 +1,10 @@
+{
+  "workloadInstanceName": "successfulpost",
+  "namespace": "<YOUR_NAMESPACE>",
+  "crdNamespace": "crdnamespace",
+  "timeout": 5,
+  "helmSourceUrl": "<HELMFILE_URL FROM ONBOARDING RESPONSE>",
+  "additionalParameters": {
+    "cn-am-test-app-a.enabled": true
+  }
+}

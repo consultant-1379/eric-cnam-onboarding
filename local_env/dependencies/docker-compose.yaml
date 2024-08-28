@@ -1,0 +1,26 @@
+services:
+  git-repo:
+    build:
+      context: git-repo
+    environment:
+        AUTH: "${GITREPO_SECURED}"
+        PORT: "${GITREPO_PORT}"
+        USER: "${GITREPO_USER}"
+        PASS: "${GITREPO_PASS}"
+    ports:
+      - "${GITREPO_PORT}:8080"
+    container_name: git-repo
+
+
+  oci-registry:
+    build:
+      context: registry
+      args:
+        REGISTRY_USER: "${OCI_REGISTRY_USER}"
+        REGISTRY_PASS: "${OCI_REGISTRY_PASS}"
+    ports:
+      - "${OCI_REGISTRY_PORT}:5005"
+    environment:
+        PORT: "${OCI_REGISTRY_PORT}"
+    container_name: oci-registry
+

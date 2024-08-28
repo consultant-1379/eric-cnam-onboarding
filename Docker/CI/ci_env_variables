@@ -1,0 +1,15 @@
+DOCKER_REGISTRY_PASS=cnampasswd
+DOCKER_REGISTRY_URL=docker.ci.hahn117.rnd.gic.ericsson.se
+DOCKER_REGISTRY_USER=cnamuser
+GITREPO_PASS=cnampasswd
+GITREPO_URL=http://ci-git-repo:8080/local-git-repo.git
+GITREPO_USER=cnamuser
+LOGGING_LEVEL_ROOT=INFO
+OCI_REGISTRY_PASS=cnampasswd
+OCI_REGISTRY_URL=docker.ci.hahn117.rnd.gic.ericsson.se
+OCI_REGISTRY_USER=cnamuser
+PASS=cnampasswd
+PORT=8080
+SPRING_PROFILES_ACTIVE=lightweight
+USER=cnamuser
+UTH=true

@@ -1,0 +1,302 @@
+{
+	"info": {
+		"_postman_id": "c7ccabc2-d49f-44a2-a801-cb44ecc3965f",
+		"name": "Onboarding",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23124645"
+	},
+	"item": [
+		{
+			"name": "Health check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}:{{port}}/cnonb/v1/health",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"cnonb",
+						"v1",
+						"health"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Health check",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host}}:{{port}}/cnonb/v1/health",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cnonb",
+								"v1",
+								"health"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \n}"
+				}
+			]
+		},
+		{
+			"name": "Onboard CSAR",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csarArchive",
+							"description": "postman/csar/tiny-eric-bss-bam-helmfile-3.6.0+14.csar",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/cnonb/v1/onboarding",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"cnonb",
+						"v1",
+						"onboarding"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Onboard CSAR",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "csarArchive",
+									"description": "postman/tiny-eric-bss-bam-helmfile-3.6.0+14.csar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{host}}:{{port}}/cnonb/v1/onboarding",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cnonb",
+								"v1",
+								"onboarding"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \"helmfileUrl\": \"helmfile url\",\n    \"helmChartUrls\": {\n        \"helmChartUrl#1\": \"helm chart url #1\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Create workload instance",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "workloadInstancePostRequestDto",
+							"description": "postman/workloadInstance/create/workloadInstancePostRequestDto.json",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "values",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "clusterConnectionInfo",
+							"description": "postman/workloadInstance/create/cluster-connection-info.config",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/cnonb/v1/workload_instances",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"cnonb",
+						"v1",
+						"workload_instances"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create workload instance",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "workloadInstancePostRequestDto",
+									"description": "postman/workloadInstance/create/workloadInstancePostRequestDto.json",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "values",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "clusterConnectionInfo",
+									"description": "postman/workloadInstance/create/cluster-connection-info.config",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{host}}:{{port}}/cnonb/v1/workload_instances",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cnonb",
+								"v1",
+								"workload_instances"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \"url\": \"Git Repo url\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update workload instance",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "workloadInstancePutRequestDto",
+							"description": "/postman/workloadInstance/update/workloadInstancePutRequestDto.json",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "values",
+							"description": "/postman/workloadInstance/update/values.yaml",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/cnonb/v1/workload_instances",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"cnonb",
+						"v1",
+						"workload_instances"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Update workload instance",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "workloadInstancePutRequestDto",
+									"description": "/postman/workloadInstance/update/workloadInstancePutRequestDto.json",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "values",
+									"description": "/postman/workloadInstance/update/values.yaml",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/cnonb/v1/workload_instances",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"cnonb",
+								"v1",
+								"workload_instances"
+							]
+						}
+					},
+					"status": "Accepted",
+					"code": 202,
+					"_postman_previewlanguage": "json",
+					"header": null,
+					"cookie": [],
+					"body": "{\n    \"url\": \"Git Repo url\"\n}"
+				}
+			]
+		}
+	]
+}

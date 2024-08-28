@@ -1,0 +1,7 @@
+{
+  "workloadInstanceName": "testName",
+  "helmSourceUrl": "some_Url",
+  "additionalParameters": {
+    "testKey": "testValue"
+  }
+}

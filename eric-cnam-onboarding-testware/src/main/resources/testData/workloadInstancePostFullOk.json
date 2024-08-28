@@ -1,0 +1,10 @@
+{
+  "workloadInstanceName" : "default-name",
+  "timeout": 5,
+  "namespace": "testuser",
+  "crdNamespace": "crdnamespace",
+  "cluster": "kubernetes",
+  "additionalParameters": {
+    "cn-am-test-app-a.enabled": true
+  }
+}

@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<suite name="Functional-Pipe">
+  <test name="Async by methods" parallel="methods" thread-count="10">
+    <packages>
+      <package name="com.ericsson.oss.management.onboarding.tests"/>
+    </packages>
+  </test>
+</suite>

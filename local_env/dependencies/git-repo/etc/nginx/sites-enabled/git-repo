@@ -1,0 +1,37 @@
+server {
+    listen 80;
+    listen 443 http2 ssl;
+    server_name localhost;
+    listen [::]:80;
+    listen [::]:443 http2 ssl;
+
+    ssl_certificate /etc/nginx/ssl/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx-selfsigned.key;
+    ssl_dhparam /etc/nginx/ssl/dhparam.pem;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+
+    location /ping {
+        add_header Content-Type text/plain;
+        return 200 'pong';
+    }
+
+    location ~ ^.*\.git/objects/([0-9a-f]+/[0-9a-f]+|pack/pack-[0-9a-f]+.(pack|idx))$ {
+        root /var/lib/git;
+    }
+
+    location ~ "^/[a-zA-Z0-9._-]+/(git-(receive|upload)-pack|HEAD|info/refs|objects/(info/(http-)?alternates|packs)|[0-9a-f]{2}/[0-9a-f]{38}|pack/pack-[0-9a-f]{40}\.(pack|idx))$" {
+#        auth_basic "Closed repository";
+#        auth_basic_user_file /etc/nginx/hwpasswd;
+        root /var/lib/git;
+        fastcgi_pass unix:/var/run/fcgiwrap.socket;
+        fastcgi_param DOCUMENT_ROOT /usr/lib/git-core;
+        fastcgi_param SCRIPT_FILENAME /usr/libexec/git-core/git-http-backend;
+        include fastcgi_params;
+        fastcgi_param GIT_HTTP_EXPORT_ALL "";
+        fastcgi_param GIT_PROJECT_ROOT /var/lib/git;
+        fastcgi_param PATH_INFO $uri;
+        fastcgi_param REMOTE_USER $remote_user;
+    }
+}

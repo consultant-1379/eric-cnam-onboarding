@@ -1,0 +1,12 @@
+{
+  "workloadInstanceName": "workloadinstancename",
+  "namespace": "testNamespace",
+  "crdNamespace": "crdnamespace",
+  "timeout": 5,
+  "helmSourceUrl": "some_Url",
+  "additionalParameters": {
+    "key": "value"
+  }
+}
+
+
